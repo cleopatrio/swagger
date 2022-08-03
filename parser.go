@@ -67,6 +67,7 @@ const (
 	xCodeSamplesAttr        = "@x-codesamples"
 	scopeAttrPrefix         = "@scope."
 	awsGatewayAttr          = "@aws.api.gateway"
+	vpcLinkIdAttr           = "@vpclinkid"
 )
 
 var (
@@ -458,6 +459,8 @@ func parseGeneralAPIInfo(parser *Parser, comments []string) error {
 
 			setSwaggerInfo(parser.swagger, descriptionAttr, string(commentInfo))
 
+		case "@vpclinkid":
+			VPCLinkId = value
 		case "@host":
 			parser.swagger.Host = value
 		case "@basepath":

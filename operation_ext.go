@@ -19,6 +19,8 @@ type APIGateway struct {
 	Responses           map[string]any `json:"responses" yaml:"responses"`
 } // @name "x-amazon-apigateway-integration"
 
+var VPCLinkId = ""
+
 var awsGatewayPattern = regexp.MustCompile(`([\w,]+)\s*`)
 
 // @aws.api.gateway []int
@@ -51,7 +53,7 @@ func newAWSGatewayIntegration(operation Operation) APIGateway {
 
 	// FIX: Interpolate AccountType or AccountId
 	// FIX: Parse as raw value
-	aws.ConnectionId = `!ImportValue VpcLinkId{AccountType}`
+	aws.ConnectionId = fmt.Sprintf(`!ImportValue VpcLinkId%v`, VPCLinkId)
 	// FIX: Parse as raw value. Requires `Port` variable to be defined in
 	aws.URI = fmt.Sprintf(`!Sub "https://${InternalDomainName}:{Port}%v%v`, operation.parser.swagger.BasePath, mainRoute.Path)
 
