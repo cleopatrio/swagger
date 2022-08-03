@@ -138,6 +138,8 @@ func (operation *Operation) ParseComment(comment string, astFile *ast.File) erro
 		return operation.ParseParamComment(lineRemainder, astFile)
 	case successAttr, failureAttr, responseAttr:
 		return operation.ParseResponseComment(lineRemainder, astFile)
+	case awsGatewayAttr:
+		return operation.ParseAWSGatewayResponseComment(lineRemainder, astFile)
 	case headerAttr:
 		return operation.ParseResponseHeaderComment(lineRemainder, astFile)
 	case routerAttr:

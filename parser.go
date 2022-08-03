@@ -66,6 +66,7 @@ const (
 	tosAttr                 = "@termsofservice"
 	xCodeSamplesAttr        = "@x-codesamples"
 	scopeAttrPrefix         = "@scope."
+	awsGatewayAttr          = "@aws.api.gateway"
 )
 
 var (
