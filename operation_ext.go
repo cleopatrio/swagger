@@ -21,10 +21,7 @@ type APIGateway struct {
 
 var awsGatewayPattern = regexp.MustCompile(`([\w,]+)\s*`)
 
-// TODO: Implement x-amazon-apigateway-integration
 // @aws.api.gateway []int
-// attribute: 			@aws.api.gateway
-// lowerAttribute:	@aws.api.gateway
 // lineRemainder:		200...
 func (operation *Operation) ParseAWSGatewayResponseComment(lineRemainder string, astFile *ast.File) error {
 	// Find definitions in comment string
