@@ -67,6 +67,9 @@ func newAWSGatewayIntegration(operation Operation) APIGateway {
 func capturedParams(operation Operation) map[string]any {
 	responseParams := map[string]any{}
 
+	// Add CORS headers
+	responseParams["method.response.header.Access-Control-Allow-Origin"] = "*"
+
 	for _, param := range operation.Parameters {
 		if param.In != "body" && param.Name != "" {
 			methodStr := fmt.Sprintf(`method.response.%v.%v`, param.In, param.Name)
