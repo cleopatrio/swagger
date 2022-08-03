@@ -68,9 +68,11 @@ func capturedParams(operation Operation) map[string]any {
 	responseParams := map[string]any{}
 
 	for _, param := range operation.Parameters {
-		methodStr := fmt.Sprintf(`method.response.%v.%v`, param.In, param.Name)
-		integrationStr := fmt.Sprintf(`integration.response.%v.%v`, param.In, param.Name)
-		responseParams[methodStr] = integrationStr
+		if param.In != "body" && param.Name != "" {
+			methodStr := fmt.Sprintf(`method.response.%v.%v`, param.In, param.Name)
+			integrationStr := fmt.Sprintf(`integration.response.%v.%v`, param.In, param.Name)
+			responseParams[methodStr] = integrationStr
+		}
 	}
 
 	return responseParams
