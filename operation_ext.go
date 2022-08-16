@@ -89,7 +89,7 @@ func responseParams(operation Operation, statusCode int) map[string]any {
 
 	res := operation.Responses.StatusCodeResponses[statusCode]
 
-	for name, _ := range res.Headers {
+	for name := range res.Headers {
 		methodStr := fmt.Sprintf(`method.response.header.%v`, name)
 		integrationStr := fmt.Sprintf(`integration.response.header.%v`, name)
 		params[methodStr] = integrationStr
