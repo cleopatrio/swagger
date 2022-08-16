@@ -17,6 +17,7 @@ type APIGateway struct {
 	Type                string         `json:"type" yaml:"type"`
 	URI                 any            `json:"uri" yaml:"uri"`
 	Responses           map[string]any `json:"responses" yaml:"responses"`
+	RequestParameters   map[string]any `json:"requestParameters" yaml:"requestParameters"`
 } // @name "x-amazon-apigateway-integration"
 
 var VPCLinkId = ""
@@ -66,28 +67,44 @@ func newAWSGatewayIntegration(operation Operation) APIGateway {
 	return aws
 }
 
-func capturedParams(operation Operation) map[string]any {
-	responseParams := map[string]any{}
-
-	// Add CORS headers
-	responseParams["method.response.header.Access-Control-Allow-Origin"] = "*"
+func requestParams(operation Operation) map[string]any {
+	params := map[string]any{}
 
 	for _, param := range operation.Parameters {
 		if param.In != "body" && param.Name != "" {
-			methodStr := fmt.Sprintf(`method.response.%v.%v`, param.In, param.Name)
-			integrationStr := fmt.Sprintf(`integration.response.%v.%v`, param.In, param.Name)
-			responseParams[methodStr] = integrationStr
+			integrationStr := fmt.Sprintf(`integration.request.%v.%v`, param.In, param.Name)
+			methodStr := fmt.Sprintf(`method.request.%v.%v`, param.In, param.Name)
+			params[integrationStr] = methodStr
 		}
 	}
 
-	return responseParams
+	return params
+}
+
+func responseParams(operation Operation, statusCode int) map[string]any {
+	params := map[string]any{}
+
+	// Add CORS headers
+	params["method.response.header.Access-Control-Allow-Origin"] = "*"
+
+	res := operation.Responses.StatusCodeResponses[statusCode]
+
+	for name, _ := range res.Headers {
+		methodStr := fmt.Sprintf(`method.response.header.%v`, name)
+		integrationStr := fmt.Sprintf(`integration.response.header.%v`, name)
+		params[methodStr] = integrationStr
+	}
+
+	return params
 }
 
 func parseSimpleStatusCodes(statuses []string, operation Operation) (APIGateway, error) {
 	aws := newAWSGatewayIntegration(operation)
 
+	aws.RequestParameters = requestParams(operation)
+
 	for _, codeStr := range statuses {
-		_, err := strconv.Atoi(strings.TrimSpace(codeStr))
+		statusCode, err := strconv.Atoi(strings.TrimSpace(codeStr))
 		if err != nil {
 			return aws, fmt.Errorf("can not parse response comment \"%v\"", codeStr)
 		}
@@ -96,7 +113,7 @@ func parseSimpleStatusCodes(statuses []string, operation Operation) (APIGateway,
 
 		aws.Responses[codeStr] = map[string]any{
 			"statusCode":         codeStr,
-			"responseParameters": capturedParams(operation),
+			"responseParameters": responseParams(operation, statusCode),
 		}
 	}
 
@@ -106,10 +123,13 @@ func parseSimpleStatusCodes(statuses []string, operation Operation) (APIGateway,
 func parseResponseStatusCodes(operation Operation) (APIGateway, error) {
 	aws := newAWSGatewayIntegration(operation)
 
+	aws.RequestParameters = requestParams(operation)
+
 	for status := range operation.Responses.StatusCodeResponses {
-		aws.Responses[fmt.Sprintf("%v", status)] = map[string]any{
+		statusCode := fmt.Sprintf("%v", status)
+		aws.Responses[statusCode] = map[string]any{
 			"statusCode":         status,
-			"responseParameters": capturedParams(operation),
+			"responseParameters": responseParams(operation, status),
 		}
 	}
 
