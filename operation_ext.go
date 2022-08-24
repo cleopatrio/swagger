@@ -56,7 +56,7 @@ func newAWSGatewayIntegration(operation Operation) APIGateway {
 	// FIX: Parse as raw value
 	aws.ConnectionId = fmt.Sprintf(`!ImportValue VpcLinkId%v`, VPCLinkId)
 	// FIX: Parse as raw value. Requires `Port` variable to be defined in
-	aws.URI = fmt.Sprintf(`!Sub "https://${InternalDomainName}:${Port}%v%v`, operation.parser.swagger.BasePath, mainRoute.Path)
+	aws.URI = fmt.Sprintf(`!Sub "https://${InternalDomainName}:${Port}%v%v"`, operation.parser.swagger.BasePath, mainRoute.Path)
 
 	aws.ConnectionType = "VPC_LINK"
 	aws.ContentHandling = "CONVERT_TO_TEXT"
